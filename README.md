@@ -102,8 +102,57 @@ tests/test_auth.py::test_login_user PASSED                                      
 tests/test_auth.py::test_login_invalid_user PASSED                                                                                                                                                       [100%]
 
 ============================================================================================== 3 passed in 0.03s ===============================================================================================
-
 ```
+
+## Database Management & Install Tips
+Some tips on managing the SQLite database in the beginning and any time the database structure is changed in the models.py file.
+
+### Initialization
+To initialize the SQLite database, you'll need to use Flask-Migrate:
+- First, make sure you're in your project's root directory.
+- Set the Flask application environment variable:
+- On Windows:
+   ```
+   set FLASK_APP=app.py
+   ```
+- On macOS/Linux:
+   ```
+   export FLASK_APP=app.py
+   ```
+- Initialize the migration repository:
+   ```
+   flask db init
+   ```
+This command creates a `migrations` directory with the necessary files for managing database migrations.
+- Create the initial migration:
+   ```
+   flask db migrate -m "Initial migration"
+   ```
+   This command generates a new migration script based on the changes detected in your models.
+- Apply the migration to create the database and tables:
+
+   ```
+   flask db upgrade
+   ```
+   This command applies the migration and creates the database file (users.db) if it doesn't exist, along with the tables defined in your models.
+- Verify that the database has been created:
+You should now see a `users.db` file in your `instance` folder.
+
+After following these steps, your SQLite database should be initialized and ready to use. The tables defined in your `models.py` file will be created in the database.
+
+### Upkeep
+Whenever you make changes to your models, you'll need to create a new migration and apply it:
+```
+flask db migrate -m "Description of changes"
+flask db upgrade
+```
+Once you update models.py file with any schema changes:
+- ```flask db migrate -m "Added roles tables for many-to-many relationships"```
+- Open the newly created file in `migrations/versions/` and ensure it correctly captures all your intended changes.
+- Make manual adjustments if necessary (e.g., for complex changes Alembic might not detect).
+- ```flask db upgrade```
+- Test changes by running the application.
+- Commit changes
 
 ## Starting the application
 
