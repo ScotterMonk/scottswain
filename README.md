@@ -240,7 +240,11 @@ curl -X POST http://127.0.0.1:5000/access-report \
 # DELETE USER
 curl -X POST http://127.0.0.1:5000/delete-user \
      -H "Content-Type: application/json" \
-     -d '{"email":"bozo@oceanmedia.net"}'
+     -d '{"email":"dev.userson@example.com"}'
+
+# SHOW ALL ROLE(S)
+curl -X GET http://127.0.0.1:5000/roles-show \
+     -H "Content-Type: application/json"
 
 # CREATE ROLE(S)
 curl -X POST http://127.0.0.1:5000/create-roles \

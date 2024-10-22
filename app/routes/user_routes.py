@@ -19,10 +19,19 @@ logger.setLevel(logging.DEBUG)
 
 user_bp = Blueprint("user_bp", __name__)
 
+""" Register a user with username, email, and password. """
+
 
 # Route to register a new user.
 @user_bp.route("/register", methods=["POST"])
 def register():
+    """POST looks like:
+    curl -X POST http://127.0.0.1:5000/register -H "Content-Type: application/json"
+        -d '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
+    OR
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"}
+    -Body '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
+    """
     # Add user authentication & session handling here.
     data = request.get_json()
     username = data.get("username")
@@ -32,25 +41,29 @@ def register():
     # check to see if user already exists
     user = User.query.filter_by(email=email).first()
     if user is not None:
-        return jsonify({"message": "User email already exists"}), HTTPStatus.CONFLICT
+        logger.debug(f"\n{username} with {email} already exists.")
+        return jsonify({"message": "User email already exists."}), HTTPStatus.CONFLICT
     user = User.query.filter_by(username=username).first()
     if user is not None:
-        return jsonify({"message": "Username already exists"}), HTTPStatus.CONFLICT
+        logger.debug(f"\n{username} already exists.")
+        return jsonify({"message": "Username already exists."}), HTTPStatus.CONFLICT
     user = create_user(username, email, password)
-    logger.debug(f"{user.username} with {user.email} created.")
+    logger.debug(f"\n{username} with {email} created.")
     return (
         jsonify({f"message": "User " + username + " registered successfully"}),
         HTTPStatus.CREATED,
     )
 
 
+""" Log a user in using email and password. """
+
+
 # Route to log in a user.
 @user_bp.route("/login", methods=["POST"])
 def login():
     # Add user authentication & session handling here.
-    """ POST looks like:
-    curl -X POST http://127.0.0.1:5000/login \
-        -H "Content-Type: application/json" \
+    """POST looks like:
+    curl -X POST http://127.0.0.1:5000/login -H "Content-Type: application/json"
         -d '{"email":"dev.userson@example.com", "password":"sosecure"}'
     OR
     Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"}
@@ -59,10 +72,15 @@ def login():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-    if check_password(email, password) is True:
-        return jsonify({"message": "Login successful", "email": email}), HTTPStatus.OK
+    if check_password(email, password) is False:
+        logger.debug(f"\nLogin failed: Invalid user/pw.")
+        return (
+            jsonify({"message": "Login failed: Invalid credentials"}),
+            HTTPStatus.UNAUTHORIZED,
+        )
     else:
-        return jsonify({"message": "Invalid credentials"}), HTTPStatus.UNAUTHORIZED
+        logger.debug(f"\nLogin successful.")
+        return jsonify({"message": "Login successful", "email": email}), HTTPStatus.OK
 
 
 """ Show a user's info and their roles. Reads from the
@@ -86,22 +104,24 @@ def profile():
     username = data.get("username")
     """ If email is not provided, use username to get user_id.
     If username is not provided, use email.
-    If neither, return 400."""
+    If neither, return 400. """
     if (email is None or email == "") and (username is None or username == ""):
+        logger.debug(f"\nEmail or username required.")
         return (
-            jsonify({"message": "Email or username required"}),
+            jsonify({"message": "Email or username required."}),
             HTTPStatus.BAD_REQUEST,
         )
     elif email is None or email == "":
-        user = User.query.filter_by(username=username).first()  # Get user_id
+        user = User.query.filter_by(username=username).first()
     else:
         user = User.query.filter_by(email=email).first()
     if user is None:
-        return jsonify({"message": "User not found"}), HTTPStatus.NOT_FOUND
+        logger.debug(f"\nUser not found.")
+        return jsonify({"message": "User not found."}), HTTPStatus.NOT_FOUND
     else:
         # Get user profile information.
-
-        # Get the roles and departments using the users_roles table
+        #   Get the roles and departments using the users_roles table
+        # Add error handling here:
         roles_depts = (
             db.session.query(RolesLookup.role_name, RolesLookup.department_name)
             .join(UsersRoles, RolesLookup.id == UsersRoles.role_id)
@@ -112,15 +132,14 @@ def profile():
         for role_dept in roles_depts:
             roles_list.append(f"{role_dept[0]}/{role_dept[1]}")
 
-        # Build the user profile string
+        #   Build the user profile string
         profile = (
-            f"Username: {user.username}\n"
+            f"\nUsername: {user.username}\n"
             f"email: {user.email}\n"
             f"active: {user.active}\n"
             f"roles: {str(roles_list)}\n"
         )
         logger.debug(profile)
-
         return jsonify({"message": "User profile information" + profile}), HTTPStatus.OK
 
 
@@ -144,6 +163,7 @@ def toggle_active():
     email = data.get("email")
     user = User.query.filter_by(email=email).first()
     if user is None:
+        logger.debug(f"\nUser email {email} not found.")
         return jsonify({"message": "User not found"}), HTTPStatus.NOT_FOUND
     else:
         user.active = not user.active
@@ -152,16 +172,24 @@ def toggle_active():
             id_user=user.id, status="active" if user.active else "inactive"
         )
         db.session.commit()
+        logger.debug(f"\nUser {user.username} now {user.active}.")
         return (
-            jsonify({"message": f"User status toggled to {user.active}"}),
+            jsonify(
+                {
+                    "message": f"User "
+                    + user.username
+                    + " status toggled to "
+                    + user.active
+                }
+            ),
             HTTPStatus.OK,
         )
 
 
 """ Deprecated in favor of access-report and users-roles routes.
     Show all users and their roles. Reads from the users table.
-    (Note: This was the method used before we added users_roles
-    and roles_lookup tables.) """
+    Note: This was the method used before we added users_roles
+    and roles_lookup tables. """
 
 
 # Route to show all users.
@@ -177,6 +205,7 @@ def users():
     """
     users = User.query.all()
     user_list = []
+    logger.debug(f"\nUsers:")
     for user in users:
         user_list.append(
             {
@@ -219,20 +248,23 @@ def access_report():
     elif limit_to == "inactive_users":
         users = User.query.filter_by(active=False).all()
     else:
-        users = User.query.all()
+        logger.debug(
+            f"\nInvalid request: limit_to must be 'all_users', 'active_users', or 'inactive_users'."
+        )
+        return jsonify({"message": "Invalid request."}), HTTPStatus.BAD_REQUEST
     user_list = []
+    logger.debug(f"\nUsers:")
     for user in users:
+        active = "active" if user.active else "inactive"
         user_list.append(
             {
                 "user": user.username,
                 "email": user.email,
                 "role": user.access_level,
-                "active": user.active,
+                "active": active,
             }
         )
-        logger.debug(
-            f"{user.username} | {user.email} | {user.access_level} | {user.active}"
-        )
+        logger.debug(f"{user.username} | {user.email} | {user.access_level} | {active}")
     response = json.dumps(user_list)
     return Response(response, mimetype="application/json"), HTTPStatus.OK
 
@@ -254,9 +286,11 @@ def users_roles():
     """
     users = User.query.all()
     user_list = []
+    logger.debug(f"\nUsers:")
     for user in users:
         id_user = user.id
-        # for each user, get the roles and departments using the users_roles table
+        # For each user, get the roles and departments using the users_roles table.
+        # Add error handling here:
         roles_depts = (
             db.session.query(RolesLookup.role_name, RolesLookup.department_name)
             .join(UsersRoles, RolesLookup.id == UsersRoles.role_id)
@@ -293,16 +327,20 @@ def delete_user():
     """POST looks like:
     curl -X POST http://127.0.0.1:5000/delete-user
         -H "Content-Type: application/json"
-        -d '{"email":"bozo@oceanmedia.net"}'
+        -d '{"email":"dev.userson@example.com"}'
     OR
     Invoke-WebRequest -Uri http://127.0.0.1:5000/delete-user -Method POST -Headers @{"Content-Type" = "application/json"}
-        -Body '{"email":"bozo@oceanmedia.net"}'
+        -Body '{"email":"dev.userson@example.com"}'
     """
     data = request.get_json()
     email = data.get("email")
     user = User.query.filter_by(email=email).first()
     if user is None:
-        return jsonify({"message": "User not found"}), HTTPStatus.NOT_FOUND
+        logger.debug(f"User with email {email} not found.")
+        return (
+            jsonify({"message": "User with email " + email + " not found."}),
+            HTTPStatus.NOT_FOUND,
+        )
     else:
         # Delete references to user in UserActiveStatusChange table.
         status_changes = UserActiveStatusChange.query.filter_by(id_user=user.id).all()
@@ -311,8 +349,41 @@ def delete_user():
         # Now delete the user.
         db.session.delete(user)
         db.session.commit()
-        logger.debug(f"{user} deleted")
-        return jsonify({"message": "User deleted"}), HTTPStatus.OK
+        logger.debug(f"\n{user.username} with {email} deleted")
+        return (
+            jsonify(
+                {"message": "User " + user.username + " with " + email + " deleted"}
+            ),
+            HTTPStatus.OK,
+        )
+
+
+""" Show all roles/depts from roles_lookup tables. """
+
+
+# Route to show all roles/depts.
+@user_bp.route("/roles-show", methods=["GET"])
+def roles_show():
+    # Add user authentication & session handling here.
+    """GET looks like:
+    curl -X GET http://127.0.0.1:5000/roles-show
+        -H "Content-Type: application/json"
+    OR
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/roles-show
+        -Method GET -Headers @{"Content-Type" = "application/json"}
+    """
+    # Get all roles from roles_lookup table.
+    # Add error handling here:
+    roles = RolesLookup.query.all()
+    roles_list = []
+    logger.debug(f"\nRoles:")
+    for role in roles:
+        roles_list.append(
+            f"{role.role_name}/{role.department_name}"
+        )  # Access attributes directly
+        logger.debug(f"{role.role_name}/{role.department_name}")
+    response = json.dumps(roles_list)
+    return Response(response, mimetype="application/json"), HTTPStatus.OK
 
 
 """ Create role(s)/dept(s) in roles_lookup with
@@ -344,6 +415,7 @@ def create_roles():
     success_counter = 0
     success_message = "Role(s)/Dept(s) created."
     try:
+        logger.debug(f"Creating Role(s)/Dept(s)...")
         for role_dept in roles_depts:
             parts = role_dept.split(",")
             # logger.debug(f"role_dept={str(role_dept)}")
@@ -357,23 +429,24 @@ def create_roles():
             ).first()
             if role_dept_combo_exists is None:
                 logger.debug(
-                    f"Success: Role/Dept {role_name}/{dept_name} combination not present"
+                    f"Success: Role/Dept {role_name}/{dept_name} combination not present."
                 )
                 new_role = RolesLookup(role_name=role_name, department_name=dept_name)
-                logger.debug(f"Role/Dept {role_name}/{dept_name} combination added")
+                logger.debug(f"Role/Dept {role_name}/{dept_name} combination added.")
                 db.session.add(new_role)
                 db.session.commit()
                 success_counter += 1
     except Exception as e:
         logger.debug(f"Error creating Role(s)/Dept(s): {str(e)}")
         return (
-            jsonify({"message": "Error creating Role(s)/Dept(s)"}),
+            jsonify({"message": "Error creating Role(s)/Dept(s)."}),
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
     status = HTTPStatus.CREATED
     if success_counter == 0:
         status = HTTPStatus.BAD_REQUEST
         success_message = "Role(s)/Dept(s) not created."
+    logger.debug(f"{success_message} {str(success_counter)} created.")
     return jsonify({"message": success_message}), status
 
 
@@ -402,11 +475,10 @@ def assign_roles():
             ]}'
     """
     data = request.get_json()
-    emails_roles_depts = data.get(
-        "emails_roles_depts"
-    )  # Expecting a list of roles and departments.
-
+    emails_roles_depts = data.get("emails_roles_depts")
+    logger.debug(f"\n")
     if not emails_roles_depts:
+        logger.debug(f"Invalid input.")
         return jsonify({"message": "Invalid input."}), HTTPStatus.BAD_REQUEST
 
     success_counter = 0
@@ -433,6 +505,7 @@ def assign_roles():
             db.session.add(new_role)
             db.session.commit()
             role_exists = new_role
+            logger.debug(f"New role/dept {role_name}/{dept_name} added.")
 
         # Assign the role to the user
         user = User.query.filter_by(email=user_email).first()

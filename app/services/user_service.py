@@ -11,19 +11,18 @@ def create_user(username, email, password):
 
 def check_password(email, password):
     user = User.query.filter_by(email=email).first()
-
     if user:
-        pass
         # print(f"found user: {user.username}")
         # print(f"email: {email}")
         # print(f"password: {password}")
         # print(f"db password: {user.password}")
+        if user.password:
+            if user.password == password:
+                return True
+        else:
+            return False
     else:
         print("user not found")
-
-    if user.password == password:
-        return True
-    else:
         return False
 
 
