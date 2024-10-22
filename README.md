@@ -206,7 +206,7 @@ See API call below titled "SHOW ALL USERS with ALL ROLES"
 # REGISTER
 curl -X POST http://127.0.0.1:5000/register \
      -H "Content-Type: application/json" \
-     -d '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
+     -d '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
 
 # LOGIN
 curl -X POST http://127.0.0.1:5000/login \

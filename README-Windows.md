@@ -5,7 +5,7 @@ Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Starte
 
 ```
 # REGISTER
-Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
 
 # LOGIN
 Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com", "password":"sosecure"}'
@@ -14,7 +14,7 @@ Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Cont
 Invoke-WebRequest -Uri http://127.0.0.1:5000/toggle-active -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com"}'
 
 # SHOW USER PROFILE
-Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Scott Swain", "email":""}'
+Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Dev Userson", "email":""}'
 
 # SHOW ALL USERS (deprecated to the next two calls)
 Invoke-WebRequest -Uri http://127.0.0.1:5000/users -Method GET -Headers @{"Content-Type" = "application/json"}
