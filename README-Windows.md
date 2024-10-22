@@ -5,7 +5,9 @@ Scott Swain | scott@oceanmedia.net | Active: False | Roles: ['Dev/Getting Starte
 
 ```
 # REGISTER
-Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Bozo Clown", "email":"bozo@oceanmedia.net", "password":"sosecure"}'
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
+
+Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"testuser", "email":"testuser@example.com", "password":"testpassword"}'
 
 # LOGIN
 Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com", "password":"sosecure"}'
@@ -14,7 +16,7 @@ Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Cont
 Invoke-WebRequest -Uri http://127.0.0.1:5000/toggle-active -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com"}'
 
 # SHOW USER PROFILE
-Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Scott Swain", "email":""}'
+Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Dev Userson", "email":""}'
 
 # SHOW ALL USERS (deprecated to the next two calls)
 Invoke-WebRequest -Uri http://127.0.0.1:5000/users -Method GET -Headers @{"Content-Type" = "application/json"}
@@ -27,7 +29,12 @@ Invoke-WebRequest -Uri http://127.0.0.1:5000/users-roles -Method GET -Headers @{
 Invoke-WebRequest -Uri http://127.0.0.1:5000/access-report -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"limit_to":"all_users"}'
 
 # DELETE USER
-Invoke-WebRequest -Uri http://127.0.0.1:5000/delete-user -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"bozo@oceanmedia.net"}'
+Invoke-WebRequest -Uri http://127.0.0.1:5000/delete-user -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com"}'
+
+Invoke-WebRequest -Uri http://127.0.0.1:5000/delete-user -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"testuser@example.com"}'
+
+# SHOW ALL ROLE(S)
+Invoke-WebRequest -Uri http://127.0.0.1:5000/roles-show -Method GET -Headers @{"Content-Type" = "application/json"}
 
 # CREATE ROLE(S)
 Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'

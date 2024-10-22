@@ -18,10 +18,11 @@ from app.models import User, UserActiveStatusChange
 if __name__ == "__main__":
     with app.app_context():
         print("\nApplication started successfully.\n")
+        """
         print("Registered tables:")
         for table in db.metadata.tables:
             print(f"- {table}")
-
+        """
         # print("\nAttempting to create tables...")
         # db.create_all()
         # print("Tables created successfully.")
