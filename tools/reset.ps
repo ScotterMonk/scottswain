@@ -1,0 +1,62 @@
+# reset_database.ps1
+# This script is used to reset the database to the initial state and remove app cache files
+
+# Function to remove cache files recursively
+function Remove-PythonCache {
+    param(
+        [string]$Path = "."
+    )
+
+    # Remove __pycache__ directories
+    Get-ChildItem -Path $Path -Filter "__pycache__" -Directory -Recurse |
+        ForEach-Object {
+            Remove-Item $_.FullName -Recurse -Force
+            Write-Host "Removed cache directory: $($_.FullName)"
+        }
+
+    # Remove .pyc files
+    Get-ChildItem -Path $Path -Filter "*.pyc" -File -Recurse |
+        ForEach-Object {
+            Remove-Item $_.FullName -Force
+            Write-Host "Removed cache file: $($_.FullName)"
+        }
+}
+
+# Move to the parent directory of where the script is located
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location (Join-Path $scriptPath "..")
+
+# Remove cache files
+Write-Host "Removing Python cache files..."
+Remove-PythonCache
+
+# Remove migrations and instance folders
+Write-Host "Removing migrations and instance folders..."
+if (Test-Path "migrations") {
+    Remove-Item -Path "migrations" -Recurse -Force
+    Write-Host "Removed migrations folder"
+}
+if (Test-Path "instance") {
+    Remove-Item -Path "instance" -Recurse -Force
+    Write-Host "Removed instance folder"
+}
+
+# Initialize and run migrations
+Write-Host "Initializing new database..."
+try {
+    poetry run flask db init
+    if ($LASTEXITCODE -ne 0) { throw "Flask db init failed" }
+
+    Write-Host "Creating migration..."
+    poetry run flask db migrate
+    if ($LASTEXITCODE -ne 0) { throw "Flask db migrate failed" }
+
+    Write-Host "Applying migration..."
+    poetry run flask db upgrade
+    if ($LASTEXITCODE -ne 0) { throw "Flask db upgrade failed" }
+
+    Write-Host "Database reset completed successfully"
+} catch {
+    Write-Error "Error during database reset: $_"
+    exit 1
+}

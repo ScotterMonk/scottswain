@@ -22,17 +22,14 @@ user_bp = Blueprint("user_bp", __name__)
 
 
 # Route to register a new user.
-""" Register a user with username, email, and password. """
-
-
 @user_bp.route("/register", methods=["POST"])
 def register():
+    """Register a user with username, email, and password."""
     """POST looks like:
     curl -X POST http://127.0.0.1:5000/register -H "Content-Type: application/json"
         -d '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"}
-    -Body '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/register -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"Dev Userson", "email":"dev.userson@example.com", "password":"sosecure"}'
     """
     # Add user authentication & session handling here.
     data = request.get_json()
@@ -58,18 +55,15 @@ def register():
 
 
 # Route to log in a user.
-""" Log a user in using email and password. """
-
-
 @user_bp.route("/login", methods=["POST"])
 def login():
+    """Log a user in using email and password."""
     # Add user authentication & session handling here.
     """POST looks like:
     curl -X POST http://127.0.0.1:5000/login -H "Content-Type: application/json"
         -d '{"email":"dev.userson@example.com", "password":"sosecure"}'
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"}
-        -Body '{"email":"dev.userson@example.com", "password":"sosecure"}'
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/login -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com", "password":"sosecure"}'
     """
     data = request.get_json()
     email = data.get("email")
@@ -86,20 +80,17 @@ def login():
 
 
 # Route to show a user profile.
-""" Show a user's info and their roles. Reads from the
-    users, users_roles, and roles_lookup tables. """
-
-
 @user_bp.route("/profile", methods=["POST"])
 def profile():
+    """Show a user's info and their roles. Reads from the
+    users, users_roles, and roles_lookup tables."""
     # Add user authentication & session handling here.
     """POST looks like:
     curl -X POST http://127.0.0.1:5000/profile
         -H "Content-Type: application/json"
         -d '{"username":"Dev Useron", "email":""}'
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"}
-        -Body '{"username":"Dev Userson", "email":""}'
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/profile -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"username":"", "email":"dev.userson@example.com"}'
     """
     data = request.get_json()
     email = data.get("email")
@@ -146,20 +137,17 @@ def profile():
 
 
 # Route to hit to toggle active/inactive status of a user.
-""" Route to toggle active/inactive status of a user.
-    Modifies users and users_active_status_changes tables. """
-
-
 @user_bp.route("/toggle-active", methods=["POST"])
 def toggle_active():
+    """Route to toggle active/inactive status of a user.
+    Modifies users and users_active_status_changes tables."""
     # Add user authentication & session handling here.
     """ POST looks like:
     curl -X POST http://127.0.0.1:5000/toggle-active \
         -H "Content-Type: application/json" \
         -d '{"email":"dev.userson@example.com"}'
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/toggle-active -Method POST -Headers @{"Content-Type" = "application/json"}
-        -Body '{"email":"dev.userson@example.com"}'
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/toggle-active -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"email":"dev.userson@example.com"}'
     """
     data = request.get_json()
     email = data.get("email")
@@ -181,7 +169,7 @@ def toggle_active():
                     "message": f"User "
                     + user.username
                     + " status toggled to "
-                    + user.active
+                    + str(user.active)
                 }
             ),
             HTTPStatus.OK,
@@ -189,14 +177,12 @@ def toggle_active():
 
 
 # Route to show all users.
-""" Deprecated in favor of access-report and users-roles routes.
-    Show all users and their roles. Reads from the users table.
-    Note: This was the method used before we added users_roles
-    and roles_lookup tables. """
-
-
 @user_bp.route("/users", methods=["GET"])
 def users():
+    """Deprecated in favor of access-report and users-roles routes.
+    Show all users and their roles. Reads from the users table.
+    Note: This was the method used before we added users_roles
+    and roles_lookup tables."""
     # Add user authentication & session handling here.
     """GET looks like:
     curl -X GET http://127.0.0.1:5000/users
@@ -224,11 +210,9 @@ def users():
 
 
 # Route to show all users.
-""" Show all users and their roles. Reads from the users table. """
-
-
 @user_bp.route("/access-report", methods=["POST"])
 def access_report():
+    """Show all users and their roles. Reads from the users table."""
     # Add user authentication & session handling here.
     """(Note: can replace "all_users" below with "active_users" or "inactive_users")
     POST looks like:
@@ -236,8 +220,7 @@ def access_report():
         -H "Content-Type: application/json"
         -d '{"limit_to":"all_users"}'
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/access-report -Method POST
-        -Headers @{"Content-Type" = "application/json"} -Body '{"limit_to":"all_users"}'
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/access-report -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"limit_to":"all_users"}'
     """
     data = request.get_json()
     limit_to = data.get("limit_to")
@@ -271,19 +254,16 @@ def access_report():
 
 
 # Route to show all users and their roles.
-""" Show all users and their roles. Reads from the
-    users, users_roles, and roles_lookup tables. """
-
-
 @user_bp.route("/users-roles", methods=["GET"])
 def users_roles():
+    """Show all users and their roles. Reads from the
+    users, users_roles, and roles_lookup tables."""
     # Add user authentication & session handling here.
     """GET looks like:
     curl -X GET http://127.0.0.1:5000/users-roles
         -H "Content-Type: application/json"
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/users-roles
-        -Method GET -Headers @{"Content-Type" = "application/json"}
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/users-roles -Method GET -Headers @{"Content-Type" = "application/json"}
     """
     users = User.query.all()
     user_list = []
@@ -318,12 +298,10 @@ def users_roles():
 
 
 # Route to delete a user.
-""" Delete a user (using email address) and all references to
-    that user in the UserActiveStatusChange table. """
-
-
 @user_bp.route("/delete-user", methods=["POST"])
 def delete_user():
+    """Delete a user (using email address) and all references to
+    that user in the UserActiveStatusChange table."""
     # Add user authentication & session handling here.
     """POST looks like:
     curl -X POST http://127.0.0.1:5000/delete-user
@@ -360,18 +338,15 @@ def delete_user():
 
 
 # Route to show all roles/depts.
-""" Show all roles/depts from roles_lookup tables. """
-
-
 @user_bp.route("/roles-show", methods=["GET"])
 def roles_show():
+    """Show all roles/depts from roles_lookup tables."""
     # Add user authentication & session handling here.
     """GET looks like:
     curl -X GET http://127.0.0.1:5000/roles-show
         -H "Content-Type: application/json"
     OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/roles-show
-        -Method GET -Headers @{"Content-Type" = "application/json"}
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/roles-show -Method GET -Headers @{"Content-Type" = "application/json"}
     """
     # Get all roles from roles_lookup table.
     # Add error handling here:
@@ -388,29 +363,28 @@ def roles_show():
 
 
 # Route to create roles.
-""" Create role(s)/dept(s) in roles_lookup with
-    attributes of role_name and department_name.
-    Combination of role_name and department_name is unique. """
-
-
 @user_bp.route("/create-roles", methods=["POST"])
 def create_roles():
+    """Create role(s)/dept(s) in roles_lookup with
+    attributes of role_name and department_name.
+    Combination of role_name and department_name is unique."""
     # Add user authentication & session handling here.
     """POST looks like:
     curl -X POST http://127.0.0.1:5000/create-roles
         -H "Content-Type: application/json"
         -d '{"roles_depts":["Senior Dev,Getting Started", "Dev,Getting Started"]}'
         OR
-    Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"}
-        -Body '{"role_dept":"Senior Dev,Getting Started", "role_dept":"Dev,Getting Started"}'
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body "roles_depts": ["Senior Dev,Getting Started", "Dev,Getting Started"]
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/create-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"roles_depts": ["Senior Dev,Getting Started", "Dev,Getting Started"]}'
+
     """
     data = request.get_json()
     roles_depts = data.get("roles_depts")  # Expecting a list of roles and departments
-    if not roles_depts:  # Check if roles_depts is empty
-        return (
-            jsonify({"message": "Missing Role(s)/Dept(s)."}),
-            HTTPStatus.BAD_REQUEST,
-        )  # missing arg.
+    logger.debug(f"roles_depts={str(roles_depts)}")
+    # if not roles_depts:  # Check if roles_depts is empty
+    #     return (
+    #         jsonify({"message": "Missing Role(s)/Dept(s)."}), HTTPStatus.BAD_REQUEST
+    #     )  # missing arg.
     # Add format validation here.
     logger.debug(f"roles_depts={str(roles_depts)}")
     success_counter = 0
@@ -452,16 +426,15 @@ def create_roles():
 
 
 # Route to assign roles to users.
-""" Allow for a user to be assigned one or more roles.
-    This will be done by adding record(s) to the users_roles table.
-    Potential for this to receive a list of roles to assign to a user
-    or a list of users (via email) to assign role(s) to. """
-
-
 @user_bp.route("/assign-roles", methods=["POST"])
 def assign_roles():
+    """Allow for a user to be assigned one or more roles.
+    This will be done by adding record(s) to the users_roles table.
+    Potential for this to receive a list of roles to assign to a user
+    or a list of users (via email) to assign role(s) to."""
+
     # Add user authentication & session handling here.
-    """POST looks like:
+    """ POST looks like:
     curl -X POST http://127.0.0.1:5000/assign-roles
         -H "Content-Type: application/json"
         -d '{"emails_roles_depts":[
@@ -469,6 +442,10 @@ def assign_roles():
             "scott@oceanmedia.net,Dev,Getting Started", "scott@oceanmedia.net,Dev,Finance Dept"
             ]}'
     OR
+    Testing with one user:
+    Invoke-WebRequest -Uri http://127.0.0.1:5000/assign-roles -Method POST -Headers @{"Content-Type" = "application/json"} -Body '{"emails_roles_depts":["dev.userson@example.com,Senior Dev,Getting Started"]}'
+
+    Testing with 3 users:
     Invoke-WebRequest -Uri http://127.0.0.1:5000/assign-roles -Method POST -Headers @{"Content-Type" = "application/json"}
         -Body '{"emails_roles_depts":[
             "dev.userson@example.com,Senior Dev,Getting Started",
@@ -491,21 +468,21 @@ def assign_roles():
             logger.debug(f"Invalid argument item: {email_role_dept}.")
             success_message = f"Invalid argument item: {email_role_dept}."
             continue
-        # Chose not to use tuple unpacking below, for clarity/debugging/scalability.
-        # user_email, role_name, dept_name = parts
+
         user_email = parts[0]
         role_name = parts[1]
         dept_name = parts[2]
 
         # Check if the role/dept combo exists and if not, add to roles_lookup
-        role_dept_combo_exists = RolesLookup.query.filter_by(
+        role = RolesLookup.query.filter_by(
             role_name=role_name, department_name=dept_name
         ).first()
-        if role_dept_combo_exists is None:
-            new_role = RolesLookup(role_name=role_name, department_name=dept_name)
-            db.session.add(new_role)
+
+        # If role doesn't exist, create it
+        if role is None:
+            role = RolesLookup(role_name=role_name, department_name=dept_name)
+            db.session.add(role)
             db.session.commit()
-            role_exists = new_role
             logger.debug(f"New role/dept {role_name}/{dept_name} added.")
 
         # Assign the role to the user
@@ -516,10 +493,11 @@ def assign_roles():
             continue
 
         user_role_exists = UsersRoles.query.filter_by(
-            user_id=user.id, role_id=role_exists.id
+            user_id=user.id, role_id=role.id  # Using role.id instead of role_exists.id
         ).first()
+
         if user_role_exists is None:
-            user_role = UsersRoles(user_id=user.id, role_id=role_exists.id)
+            user_role = UsersRoles(user_id=user.id, role_id=role.id)  # Using role.id
             db.session.add(user_role)
             success_counter += 1
 
