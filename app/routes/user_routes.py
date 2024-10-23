@@ -7,6 +7,7 @@ import sys
 import json
 from http import HTTPStatus
 
+
 # Configure logger to print to shell.
 #   (move this to a separate file so it can be referenced by multiple modules)
 logger = logging.getLogger("alembic.env")
@@ -19,10 +20,11 @@ logger.setLevel(logging.DEBUG)
 
 user_bp = Blueprint("user_bp", __name__)
 
+
+# Route to register a new user.
 """ Register a user with username, email, and password. """
 
 
-# Route to register a new user.
 @user_bp.route("/register", methods=["POST"])
 def register():
     """POST looks like:
@@ -55,10 +57,10 @@ def register():
     )
 
 
+# Route to log in a user.
 """ Log a user in using email and password. """
 
 
-# Route to log in a user.
 @user_bp.route("/login", methods=["POST"])
 def login():
     # Add user authentication & session handling here.
@@ -83,11 +85,11 @@ def login():
         return jsonify({"message": "Login successful", "email": email}), HTTPStatus.OK
 
 
+# Route to show a user profile.
 """ Show a user's info and their roles. Reads from the
     users, users_roles, and roles_lookup tables. """
 
 
-# Route to show a user profile.
 @user_bp.route("/profile", methods=["POST"])
 def profile():
     # Add user authentication & session handling here.
@@ -143,11 +145,11 @@ def profile():
         return jsonify({"message": "User profile information" + profile}), HTTPStatus.OK
 
 
+# Route to hit to toggle active/inactive status of a user.
 """ Route to toggle active/inactive status of a user.
     Modifies users and users_active_status_changes tables. """
 
 
-# Route to hit to toggle active/inactive status of a user.
 @user_bp.route("/toggle-active", methods=["POST"])
 def toggle_active():
     # Add user authentication & session handling here.
@@ -186,14 +188,13 @@ def toggle_active():
         )
 
 
+# Route to show all users.
 """ Deprecated in favor of access-report and users-roles routes.
     Show all users and their roles. Reads from the users table.
     Note: This was the method used before we added users_roles
     and roles_lookup tables. """
 
 
-# Route to show all users.
-#    Deprecated in favor of access-report route.
 @user_bp.route("/users", methods=["GET"])
 def users():
     # Add user authentication & session handling here.
@@ -222,10 +223,10 @@ def users():
     return Response(response, mimetype="application/json"), HTTPStatus.OK
 
 
+# Route to show all users.
 """ Show all users and their roles. Reads from the users table. """
 
 
-# Route to show all users.
 @user_bp.route("/access-report", methods=["POST"])
 def access_report():
     # Add user authentication & session handling here.
@@ -269,11 +270,11 @@ def access_report():
     return Response(response, mimetype="application/json"), HTTPStatus.OK
 
 
+# Route to show all users and their roles.
 """ Show all users and their roles. Reads from the
     users, users_roles, and roles_lookup tables. """
 
 
-# Route to show all users and their roles.
 @user_bp.route("/users-roles", methods=["GET"])
 def users_roles():
     # Add user authentication & session handling here.
@@ -316,11 +317,11 @@ def users_roles():
     return Response(response, mimetype="application/json"), HTTPStatus.OK
 
 
+# Route to delete a user.
 """ Delete a user (using email address) and all references to
     that user in the UserActiveStatusChange table. """
 
 
-# Route to delete a user.
 @user_bp.route("/delete-user", methods=["POST"])
 def delete_user():
     # Add user authentication & session handling here.
@@ -358,10 +359,10 @@ def delete_user():
         )
 
 
+# Route to show all roles/depts.
 """ Show all roles/depts from roles_lookup tables. """
 
 
-# Route to show all roles/depts.
 @user_bp.route("/roles-show", methods=["GET"])
 def roles_show():
     # Add user authentication & session handling here.
@@ -386,12 +387,12 @@ def roles_show():
     return Response(response, mimetype="application/json"), HTTPStatus.OK
 
 
+# Route to create roles.
 """ Create role(s)/dept(s) in roles_lookup with
     attributes of role_name and department_name.
     Combination of role_name and department_name is unique. """
 
 
-# Route to create roles.
 @user_bp.route("/create-roles", methods=["POST"])
 def create_roles():
     # Add user authentication & session handling here.
@@ -450,13 +451,13 @@ def create_roles():
     return jsonify({"message": success_message}), status
 
 
+# Route to assign roles to users.
 """ Allow for a user to be assigned one or more roles.
     This will be done by adding record(s) to the users_roles table.
     Potential for this to receive a list of roles to assign to a user
     or a list of users (via email) to assign role(s) to. """
 
 
-# Route to assign roles to users.
 @user_bp.route("/assign-roles", methods=["POST"])
 def assign_roles():
     # Add user authentication & session handling here.
