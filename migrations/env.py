@@ -7,7 +7,6 @@ from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-# Check if context.config exists, otherwise create a fallback for testing
 config = context.config
 
 # Interpret the config file for Python logging.
